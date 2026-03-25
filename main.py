@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine
 from models import Base
-from routers import items, users, fhir
+from routers import items, users, fhir ,questionnaire
 
 Base.metadata.create_all(bind=engine)
 
@@ -22,3 +22,4 @@ app.add_middleware(
 app.include_router(users.router)
 app.include_router(items.router)
 app.include_router(fhir.router)
+app.include_router(questionnaire.router)

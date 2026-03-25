@@ -19,4 +19,4 @@ class ItemResponse(BaseModel):
     price: float
 
     class Config:
-        orm_mode = True  # SQLAlchemy 객체 → Pydantic 변환
+        from_attributes = True 
