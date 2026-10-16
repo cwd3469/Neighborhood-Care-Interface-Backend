@@ -2,24 +2,29 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine
 from models import Base
-from routers import items, users, fhir ,questionnaire
+from routers import users, seniors, schedules, records, vitals, ai, auth
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(
+    title="우리 동네 시니어 케어 매니저",
+    description="방문요양·건강기록 관리 SaaS — FHIR R5 기반",
+    version="1.0.0",
+    redirect_slashes=False,
+)
 
-
-# CORS 미들웨어 — Next.js(3000) → FastAPI(8000) 허용
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000" , "http://localhost:3001"],
+    allow_origins=["http://localhost:3000", "http://localhost:3001"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# 라우터 등록
 app.include_router(users.router)
-app.include_router(items.router)
-app.include_router(fhir.router)
-app.include_router(questionnaire.router)
+app.include_router(auth.router)
+app.include_router(seniors.router)
+app.include_router(schedules.router)
+app.include_router(records.router)
+app.include_router(vitals.router)
+app.include_router(ai.router)
