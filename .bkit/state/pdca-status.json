@@ -1,0 +1,302 @@
+{
+  "version": "3.0",
+  "lastUpdated": "2026-10-22T14:03:00.735Z",
+  "activeFeatures": [
+    "schemas",
+    "backend",
+    "user_service.py",
+    "auth_service.py",
+    "user-refresh-token",
+    "ai_service.py"
+  ],
+  "primaryFeature": "schemas",
+  "features": {
+    "schemas": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-09-25T05:18:21.160Z",
+        "lastUpdated": "2026-10-22T14:02:20.268Z"
+      },
+      "lastFile": "/Users/timothy/Desktop/develop/systemNeighborhoodSeniorCare/backend/schemas/ai_summary.py"
+    },
+    "backend": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-09-25T06:24:37.316Z",
+        "lastUpdated": "2026-10-22T14:03:00.735Z"
+      },
+      "lastFile": "/Users/timothy/Desktop/develop/systemNeighborhoodSeniorCare/backend/routers/ai.py"
+    },
+    "user_service.py": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-09-25T06:25:06.938Z",
+        "lastUpdated": "2026-10-09T12:08:30.205Z"
+      },
+      "lastFile": "/Users/timothy/Desktop/develop/systemNeighborhoodSeniorCare/backend/services/user_service.py"
+    },
+    "auth_service.py": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-09-25T06:25:25.778Z",
+        "lastUpdated": "2026-09-25T06:37:18.867Z"
+      },
+      "lastFile": "/Users/timothy/Desktop/develop/systemNeighborhoodSeniorCare/backend/services/auth_service.py"
+    },
+    "user-refresh-token": {
+      "phase": "act",
+      "phaseNumber": 5,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-09-25T06:37:30.163Z",
+        "lastUpdated": "2026-09-25T06:37:30.164Z"
+      },
+      "previousPhase": "check",
+      "autoAdvanced": true
+    },
+    "ai_service.py": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-10-22T14:02:23.263Z",
+        "lastUpdated": "2026-10-22T14:02:50.060Z"
+      },
+      "lastFile": "/Users/timothy/Desktop/develop/systemNeighborhoodSeniorCare/backend/services/ai_service.py"
+    }
+  },
+  "pipeline": {
+    "currentPhase": 1,
+    "level": "Dynamic",
+    "phaseHistory": []
+  },
+  "session": {
+    "startedAt": "2026-03-26T06:30:38.545Z",
+    "onboardingCompleted": false,
+    "lastActivity": "2026-10-22T14:03:00.735Z"
+  },
+  "history": [
+    {
+      "timestamp": "2026-09-25T05:18:21.160Z",
+      "feature": "schemas",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-25T06:24:37.316Z",
+      "feature": "backend",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-25T06:24:42.245Z",
+      "feature": "backend",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-25T06:24:49.427Z",
+      "feature": "backend",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-25T06:24:54.616Z",
+      "feature": "schemas",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-25T06:25:06.938Z",
+      "feature": "user_service.py",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-25T06:25:14.910Z",
+      "feature": "user_service.py",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-25T06:25:25.778Z",
+      "feature": "auth_service.py",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-25T06:25:30.593Z",
+      "feature": "backend",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-25T06:25:34.401Z",
+      "feature": "backend",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-25T06:25:37.791Z",
+      "feature": "backend",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-25T06:37:13.986Z",
+      "feature": "auth_service.py",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-25T06:37:18.867Z",
+      "feature": "auth_service.py",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-25T06:37:30.164Z",
+      "feature": "user-refresh-token",
+      "phase": "act",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-25T07:13:29.047Z",
+      "feature": "backend",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-25T07:13:36.308Z",
+      "feature": "backend",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-10-09T03:36:10.957Z",
+      "feature": "backend",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-10-09T03:41:27.306Z",
+      "feature": "backend",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-10-09T12:08:05.927Z",
+      "feature": "schemas",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-10-09T12:08:08.483Z",
+      "feature": "user_service.py",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-10-09T12:08:18.305Z",
+      "feature": "user_service.py",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-10-09T12:08:24.939Z",
+      "feature": "user_service.py",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-10-09T12:08:27.873Z",
+      "feature": "user_service.py",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-10-09T12:08:30.205Z",
+      "feature": "user_service.py",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-10-22T14:02:16.305Z",
+      "feature": "backend",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-10-22T14:02:20.268Z",
+      "feature": "schemas",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-10-22T14:02:23.263Z",
+      "feature": "ai_service.py",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-10-22T14:02:50.060Z",
+      "feature": "ai_service.py",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-10-22T14:02:54.078Z",
+      "feature": "backend",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-10-22T14:03:00.735Z",
+      "feature": "backend",
+      "phase": "do",
+      "action": "updated"
+    }
+  ],
+  "stateMachine": {
+    "defaultWorkflow": "default",
+    "activeWorkflows": {},
+    "totalTransitions": 0
+  },
+  "automation": {
+    "globalLevel": 2,
+    "trustScore": 40,
+    "pendingApprovals": 0,
+    "lastGateResult": null
+  },
+  "team": {
+    "enabled": true,
+    "stateFile": ".bkit/runtime/agent-state.json",
+    "eventsFile": ".bkit/runtime/agent-events.jsonl"
+  }
+}
