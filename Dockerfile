@@ -13,8 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 소스코드 복사
 COPY . .
 
-# 포트 노출
+# 포트 노출 (로컬 기본값 — Render 등 PaaS는 PORT 환경변수로 포트를 지정)
 EXPOSE 8000
 
-# 서버 실행
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# 서버 실행 — PORT가 있으면 그 값, 없으면 8000
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]

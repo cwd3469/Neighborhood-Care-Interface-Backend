@@ -114,6 +114,20 @@ class AiSummary(Base):
     model_used = Column(String, nullable=False)
 
 
+class SeniorAiSummary(Base):
+    # Design Ref: §2.1 — senior 단위 누적 방문기록 종합 요약, upsert 패턴
+    __tablename__ = "senior_ai_summaries"
+
+    id              = Column(Integer, primary_key=True, index=True)
+    senior_id       = Column(Integer, ForeignKey("seniors.id"), unique=True, nullable=False)
+    trend_summary   = Column(Text, nullable=False)
+    anomaly_flags   = Column(JSON, nullable=True)    # list[str]
+    recommendations = Column(JSON, nullable=True)    # list[str]
+    record_count    = Column(Integer, nullable=False)
+    generated_at    = Column(DateTime, default=datetime.utcnow)
+    model_used      = Column(String, nullable=False)
+
+
 class RefreshToken(Base):
     # Design Ref: §2.1 — 다중 기기 지원, 원문 미저장(해시만 보관)
     __tablename__ = "refresh_tokens"
