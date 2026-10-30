@@ -6,7 +6,7 @@ from services.senior_service import (
     get_all_seniors, get_senior, create_senior, update_senior, delete_senior,
     add_guardian_relation, get_guardian_relations, get_seniors_for_guardian,
 )
-from routers.users import get_current_user, require_admin
+from routers.users import get_current_user, require_admin, check_guardian_senior_access
 from models import User, UserRole
 
 router = APIRouter(prefix="/seniors", tags=["seniors"])
@@ -28,6 +28,8 @@ def read_senior(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    # Plan SC: FR-03 — guardian 소유 검사
+    check_guardian_senior_access(senior_id, current_user, db)
     return get_senior(senior_id, db)
 
 

@@ -5,7 +5,7 @@ from database import get_db
 from schemas.user import UserCreate, UserResponse, Token
 from services.user_service import register_user, login_user, get_users, deactivate_user
 from auth import decode_access_token
-from models import User, UserRole
+from models import User, UserRole, GuardianSeniorRelation
 
 router = APIRouter(tags=["auth"])
 
@@ -39,8 +39,21 @@ def require_caregiver_or_admin(current_user: User = Depends(get_current_user)) -
     return current_user
 
 
+def check_guardian_senior_access(senior_id: int, current_user: User, db: Session) -> None:
+    # Plan SC: FR-02 — guardian 역할이면 GuardianSeniorRelation으로 소유 여부 검사
+    if current_user.role != UserRole.guardian:
+        return
+    relation = db.query(GuardianSeniorRelation).filter(
+        GuardianSeniorRelation.guardian_id == current_user.id,
+        GuardianSeniorRelation.senior_id == senior_id,
+    ).first()
+    if not relation:
+        raise HTTPException(status_code=403, detail="접근 권한이 없습니다")
+
+
 @router.post("/register", response_model=UserResponse)
 def register(user: UserCreate, db: Session = Depends(get_db)):
+    user.role = UserRole.caregiver  # Plan SC: FR-01 — 공개 등록은 caregiver만 허용
     return register_user(user, db)
 
 

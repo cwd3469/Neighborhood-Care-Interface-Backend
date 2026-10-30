@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from schemas.vital import VitalObservationResponse
 from services.vital_service import get_vitals_for_senior
-from routers.users import get_current_user
+from routers.users import get_current_user, check_guardian_senior_access
 from models import User
 
 router = APIRouter(prefix="/vitals", tags=["vitals"])
@@ -19,4 +19,6 @@ def list_vitals(
     db: Session = Depends(get_db),
 ):
     """어르신의 활력징후 추이 조회. loinc_code 파라미터로 특정 항목만 필터링 가능."""
+    # Plan SC: FR-06 — guardian 소유 검사
+    check_guardian_senior_access(senior_id, current_user, db)
     return get_vitals_for_senior(senior_id, db, loinc_code=loinc_code, limit=limit)

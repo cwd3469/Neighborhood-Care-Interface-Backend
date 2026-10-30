@@ -1,7 +1,7 @@
 from datetime import datetime
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
-from models import VisitRecord, VitalObservation
+from models import VisitRecord, VitalObservation, GuardianSeniorRelation
 from schemas.record import VisitRecordCreate
 
 # linkId → LOINC 코드 매핑 (FHIR QuestionnaireResponse item.linkId 기준)
@@ -129,3 +129,14 @@ def get_record(record_id: int, db: Session) -> VisitRecord:
     if not record:
         raise HTTPException(status_code=404, detail="방문 기록을 찾을 수 없습니다")
     return record
+
+
+def get_records_for_guardian(guardian_id: int, db: Session, senior_id: int | None = None) -> list[VisitRecord]:
+    # guardian이 관계된 어르신의 기록만 반환 (IDOR 방어)
+    allowed_seniors = db.query(GuardianSeniorRelation.senior_id).filter(
+        GuardianSeniorRelation.guardian_id == guardian_id
+    )
+    query = db.query(VisitRecord).filter(VisitRecord.senior_id.in_(allowed_seniors))
+    if senior_id is not None:
+        query = query.filter(VisitRecord.senior_id == senior_id)
+    return query.order_by(VisitRecord.recorded_at.desc()).all()
