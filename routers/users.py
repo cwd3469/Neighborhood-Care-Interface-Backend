@@ -39,6 +39,7 @@ def require_caregiver_or_admin(current_user: User = Depends(get_current_user)) -
     return current_user
 
 
+
 def check_guardian_senior_access(senior_id: int, current_user: User, db: Session) -> None:
     # Plan SC: FR-02 — guardian 역할이면 GuardianSeniorRelation으로 소유 여부 검사
     if current_user.role != UserRole.guardian:

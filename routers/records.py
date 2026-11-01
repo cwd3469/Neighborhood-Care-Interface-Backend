@@ -57,3 +57,4 @@ def create(
     db: Session = Depends(get_db),
 ):
     return create_record(data, caregiver_id=current_user.id, db=db)
+
