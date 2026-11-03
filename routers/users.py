@@ -3,6 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from database import get_db
 from schemas.user import UserCreate, UserResponse, Token
+from services.access_service import is_caregiver_assigned
 from services.user_service import register_user, login_user, get_users, deactivate_user
 from auth import decode_access_token
 from models import User, UserRole, GuardianSeniorRelation
@@ -40,16 +41,20 @@ def require_caregiver_or_admin(current_user: User = Depends(get_current_user)) -
 
 
 
-def check_guardian_senior_access(senior_id: int, current_user: User, db: Session) -> None:
-    # Plan SC: FR-02 — guardian 역할이면 GuardianSeniorRelation으로 소유 여부 검사
-    if current_user.role != UserRole.guardian:
-        return
-    relation = db.query(GuardianSeniorRelation).filter(
-        GuardianSeniorRelation.guardian_id == current_user.id,
-        GuardianSeniorRelation.senior_id == senior_id,
-    ).first()
-    if not relation:
-        raise HTTPException(status_code=403, detail="접근 권한이 없습니다")
+def check_senior_access(senior_id: int, current_user: User, db: Session) -> None:
+    # 담당 어르신 접근 검사 — 보호자: 연결 관계 / 요양사: 담당 관계 / admin: 통과
+    # 규칙: 통과면 아무것도 안 함, 실패면 raise (반환값은 호출부에서 쓰지 않음)
+
+    if current_user.role == UserRole.guardian:
+        relation = db.query(GuardianSeniorRelation.id).filter(
+            GuardianSeniorRelation.guardian_id == current_user.id,
+            GuardianSeniorRelation.senior_id == senior_id,
+        ).first()
+        if relation is None:
+            raise HTTPException(status_code=403, detail="접근 권한이 없습니다")   # ①
+
+    if current_user.role == UserRole.caregiver and not is_caregiver_assigned(current_user.id, senior_id, db):
+        raise HTTPException(status_code=403, detail="접근 권한이 없습니다") 
 
 
 @router.post("/register", response_model=UserResponse)

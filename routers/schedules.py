@@ -7,7 +7,7 @@ from services.schedule_service import (
     create_schedule, get_schedules, get_schedule,
     update_schedule, update_schedule_status, delete_schedule,get_schedules_for_guardian
 )
-from routers.users import get_current_user, require_admin , check_guardian_senior_access , require_caregiver_or_admin
+from routers.users import get_current_user, require_admin , check_senior_access , require_caregiver_or_admin
 from models import User, UserRole
 
 router = APIRouter(prefix="/schedules", tags=["schedules"])
@@ -34,7 +34,7 @@ def read_schedule(
 ):
     schedule = get_schedule(schedule_id, db)  # 없으면 404
 
-    check_guardian_senior_access(schedule.senior_id, current_user, db)  # 보호자: 남의 어르신이면 403
+    check_senior_access(schedule.senior_id, current_user, db)  # 보호자: 남의 어르신이면 403
 
     if current_user.role == UserRole.caregiver and schedule.caregiver_id != current_user.id:
         raise HTTPException(status_code=403, detail="접근 권한이 없습니다")  # 요양사: 남의 일정이면 403

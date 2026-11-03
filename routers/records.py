@@ -6,7 +6,7 @@ from schemas.record import VisitRecordCreate, VisitRecordResponse
 from schemas.vital import VitalObservationResponse
 from services.record_service import create_record, get_records, get_record, get_records_for_guardian
 from services.vital_service import get_vitals_for_record
-from routers.users import get_current_user, require_caregiver_or_admin, check_guardian_senior_access
+from routers.users import get_current_user, require_caregiver_or_admin, check_senior_access
 from models import User, UserRole
 
 router = APIRouter(prefix="/records", tags=["records"])
@@ -34,7 +34,7 @@ def read_record(
 ):
     record = get_record(record_id, db)
     # Plan SC: FR-04 — guardian 소유 검사 (record의 senior_id 기준)
-    check_guardian_senior_access(record.senior_id, current_user, db)
+    check_senior_access(record.senior_id, current_user, db)
     return record
 
 
@@ -46,7 +46,7 @@ def read_record_vitals(
 ):
     record = get_record(record_id, db)
     # Plan SC: FR-05 — guardian 소유 검사
-    check_guardian_senior_access(record.senior_id, current_user, db)
+    check_senior_access(record.senior_id, current_user, db)
     return get_vitals_for_record(record_id, db)
 
 
