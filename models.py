@@ -1,9 +1,11 @@
 import enum
-from datetime import datetime
+from datetime import date, datetime, time
+from typing import Any
 from sqlalchemy import (
-    Column, Integer, String, Float, Text, DateTime,
+    String, Float, Text, DateTime,
     Date, Time, Boolean, ForeignKey, Enum, JSON, UniqueConstraint
 )
+from sqlalchemy.orm import Mapped, mapped_column
 from database import Base
 
 
@@ -23,28 +25,28 @@ class ScheduleStatus(str, enum.Enum):
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, nullable=False, index=True)
-    hashed_password = Column(String, nullable=False)
-    role = Column(Enum(UserRole), nullable=False)
-    full_name = Column(String, nullable=True)
-    phone = Column(String, nullable=True)
-    is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    username: Mapped[str] = mapped_column(String, unique=True, index=True)
+    hashed_password: Mapped[str] = mapped_column(String)
+    role: Mapped[UserRole] = mapped_column(Enum(UserRole))
+    full_name: Mapped[str | None] = mapped_column(String, nullable=True)
+    phone: Mapped[str | None] = mapped_column(String, nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
 
 class Senior(Base):
     """돌봄 대상 어르신"""
     __tablename__ = "seniors"
 
-    id = Column(Integer, primary_key=True, index=True)
-    full_name = Column(String, nullable=False)
-    birth_date = Column(Date, nullable=False)
-    gender = Column(String, nullable=False)  # M / F
-    address = Column(String, nullable=True)
-    phone = Column(String, nullable=True)
-    medical_notes = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    full_name: Mapped[str] = mapped_column(String)
+    birth_date: Mapped[date] = mapped_column(Date)
+    gender: Mapped[str] = mapped_column(String)  # M / F
+    address: Mapped[str | None] = mapped_column(String, nullable=True)
+    phone: Mapped[str | None] = mapped_column(String, nullable=True)
+    medical_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
 
 class GuardianSeniorRelation(Base):
@@ -52,89 +54,89 @@ class GuardianSeniorRelation(Base):
     __tablename__ = "guardian_senior_relations"
     __table_args__ = (UniqueConstraint("guardian_id", "senior_id"),)
 
-    id = Column(Integer, primary_key=True, index=True)
-    guardian_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    senior_id = Column(Integer, ForeignKey("seniors.id"), nullable=False)
-    relation = Column(String, nullable=True)  # 자녀, 배우자, 형제 등
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    guardian_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    senior_id: Mapped[int] = mapped_column(ForeignKey("seniors.id"))
+    relation: Mapped[str | None] = mapped_column(String, nullable=True)  # 자녀, 배우자, 형제 등
 
 
 class VisitSchedule(Base):
     """방문 일정"""
     __tablename__ = "visit_schedules"
 
-    id = Column(Integer, primary_key=True, index=True)
-    senior_id = Column(Integer, ForeignKey("seniors.id"), nullable=False)
-    caregiver_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    scheduled_date = Column(Date, nullable=False)
-    start_time = Column(Time, nullable=False)
-    end_time = Column(Time, nullable=False)
-    status = Column(Enum(ScheduleStatus), default=ScheduleStatus.scheduled, nullable=False)
-    notes = Column(Text, nullable=True)
-    created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    senior_id: Mapped[int] = mapped_column(ForeignKey("seniors.id"))
+    caregiver_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    scheduled_date: Mapped[date] = mapped_column(Date)
+    start_time: Mapped[time] = mapped_column(Time)
+    end_time: Mapped[time] = mapped_column(Time)
+    status: Mapped[ScheduleStatus] = mapped_column(Enum(ScheduleStatus), default=ScheduleStatus.scheduled)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_by: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
 
 class VisitRecord(Base):
     """방문 기록 — FHIR QuestionnaireResponse 원본 JSONB 저장"""
     __tablename__ = "visit_records"
 
-    id = Column(Integer, primary_key=True, index=True)
-    schedule_id = Column(Integer, ForeignKey("visit_schedules.id"), nullable=True)
-    caregiver_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    senior_id = Column(Integer, ForeignKey("seniors.id"), nullable=False)
-    fhir_response = Column(JSON, nullable=False)   # FHIR QuestionnaireResponse
-    visit_notes = Column(Text, nullable=True)       # 자유 텍스트 메모
-    recorded_at = Column(DateTime, default=datetime.utcnow)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    schedule_id: Mapped[int | None] = mapped_column(ForeignKey("visit_schedules.id"), nullable=True)
+    caregiver_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    senior_id: Mapped[int] = mapped_column(ForeignKey("seniors.id"))
+    fhir_response: Mapped[Any] = mapped_column(JSON)   # FHIR QuestionnaireResponse
+    visit_notes: Mapped[str | None] = mapped_column(Text, nullable=True)       # 자유 텍스트 메모
+    recorded_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
 
 class VitalObservation(Base):
     """활력징후 구조화 — FHIR Observation + LOINC 코드 (대시보드·추이 쿼리용)"""
     __tablename__ = "vital_observations"
 
-    id = Column(Integer, primary_key=True, index=True)
-    record_id = Column(Integer, ForeignKey("visit_records.id"), nullable=False)
-    senior_id = Column(Integer, ForeignKey("seniors.id"), nullable=False)
-    loinc_code = Column(String, nullable=False)    # e.g. "8480-6"
-    display_name = Column(String, nullable=False)  # e.g. "혈압(수축기)"
-    value = Column(Float, nullable=False)
-    unit = Column(String, nullable=False)          # e.g. "mmHg"
-    observed_at = Column(DateTime, nullable=False)
-    fhir_observation = Column(JSON, nullable=True) # FHIR Observation 원본
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    record_id: Mapped[int] = mapped_column(ForeignKey("visit_records.id"))
+    senior_id: Mapped[int] = mapped_column(ForeignKey("seniors.id"))
+    loinc_code: Mapped[str] = mapped_column(String)    # e.g. "8480-6"
+    display_name: Mapped[str] = mapped_column(String)  # e.g. "혈압(수축기)"
+    value: Mapped[float] = mapped_column(Float)
+    unit: Mapped[str] = mapped_column(String)          # e.g. "mmHg"
+    observed_at: Mapped[datetime] = mapped_column(DateTime)
+    fhir_observation: Mapped[Any | None] = mapped_column(JSON, nullable=True)  # FHIR Observation 원본
 
 
 class AiSummary(Base):
     """LLM이 생성한 방문 기록 요약 및 이상징후"""
     __tablename__ = "ai_summaries"
 
-    id = Column(Integer, primary_key=True, index=True)
-    record_id = Column(Integer, ForeignKey("visit_records.id"), unique=True, nullable=False)
-    summary = Column(Text, nullable=False)
-    anomaly_flags = Column(JSON, nullable=True)  # list[str]
-    generated_at = Column(DateTime, default=datetime.utcnow)
-    model_used = Column(String, nullable=False)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    record_id: Mapped[int] = mapped_column(ForeignKey("visit_records.id"), unique=True)
+    summary: Mapped[str] = mapped_column(Text)
+    anomaly_flags: Mapped[Any | None] = mapped_column(JSON, nullable=True)  # list[str]
+    generated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    model_used: Mapped[str] = mapped_column(String)
 
 
 class SeniorAiSummary(Base):
     # Design Ref: §2.1 — senior 단위 누적 방문기록 종합 요약, upsert 패턴
     __tablename__ = "senior_ai_summaries"
 
-    id              = Column(Integer, primary_key=True, index=True)
-    senior_id       = Column(Integer, ForeignKey("seniors.id"), unique=True, nullable=False)
-    trend_summary   = Column(Text, nullable=False)
-    anomaly_flags   = Column(JSON, nullable=True)    # list[str]
-    recommendations = Column(JSON, nullable=True)    # list[str]
-    record_count    = Column(Integer, nullable=False)
-    generated_at    = Column(DateTime, default=datetime.utcnow)
-    model_used      = Column(String, nullable=False)
+    id:              Mapped[int] = mapped_column(primary_key=True, index=True)
+    senior_id:       Mapped[int] = mapped_column(ForeignKey("seniors.id"), unique=True)
+    trend_summary:   Mapped[str] = mapped_column(Text)
+    anomaly_flags:   Mapped[Any | None] = mapped_column(JSON, nullable=True)    # list[str]
+    recommendations: Mapped[Any | None] = mapped_column(JSON, nullable=True)    # list[str]
+    record_count:    Mapped[int] = mapped_column()
+    generated_at:    Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    model_used:      Mapped[str] = mapped_column(String)
 
 
 class RefreshToken(Base):
     # Design Ref: §2.1 — 다중 기기 지원, 원문 미저장(해시만 보관)
     __tablename__ = "refresh_tokens"
 
-    id          = Column(Integer, primary_key=True, index=True)
-    user_id     = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    token_hash  = Column(String, nullable=False, index=True)
-    expires_at  = Column(DateTime, nullable=False)
-    created_at  = Column(DateTime, default=datetime.utcnow)
-    device_info = Column(String, nullable=True)
+    id:          Mapped[int] = mapped_column(primary_key=True, index=True)
+    user_id:     Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    token_hash:  Mapped[str] = mapped_column(String, index=True)
+    expires_at:  Mapped[datetime] = mapped_column(DateTime)
+    created_at:  Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    device_info: Mapped[str | None] = mapped_column(String, nullable=True)
