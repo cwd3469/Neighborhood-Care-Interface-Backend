@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from schemas.senior import SeniorCreate, SeniorUpdate, SeniorResponse, GuardianRelationCreate, GuardianRelationResponse
 from services.senior_service import (
-    get_all_seniors, get_senior, create_senior, update_senior, delete_senior,
+    get_all_seniors, get_senior, create_senior, get_seniors_for_caregiver, update_senior, delete_senior,
     add_guardian_relation, get_guardian_relations, get_seniors_for_guardian,
 )
 from routers.users import get_current_user, require_admin, check_senior_access
@@ -19,6 +19,8 @@ def list_seniors(
 ):
     if current_user.role == UserRole.guardian:
         return get_seniors_for_guardian(current_user.id, db)
+    if current_user.role == UserRole.caregiver:
+        return get_seniors_for_caregiver(current_user.id, db)
     return get_all_seniors(db)
 
 

@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
-from models import Senior, GuardianSeniorRelation
+from models import Senior, GuardianSeniorRelation, SeniorAiSummary
 from schemas.senior import SeniorCreate, SeniorUpdate, GuardianRelationCreate
+from services.access_service import caregiver_senior_ids_subquery
 
 
 def get_all_seniors(db: Session) -> list[Senior]:
@@ -77,5 +78,13 @@ def get_guardian_relations(senior_id: int, db: Session) -> list[GuardianSeniorRe
     return (
         db.query(GuardianSeniorRelation)
         .filter(GuardianSeniorRelation.senior_id == senior_id)
+        .all()
+    )
+
+def get_seniors_for_caregiver(caregiver_id: int, db: Session) -> list[Senior]:
+    # 요양사 담당 어르신만 — 담당 기준은 access_service가 결정 (B→C 교체 지점)
+    return (
+        db.query(Senior)
+        .filter(Senior.id.in_(caregiver_senior_ids_subquery(caregiver_id, db)))
         .all()
     )
