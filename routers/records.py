@@ -4,7 +4,9 @@ from sqlalchemy.orm import Session
 from database import get_db
 from schemas.record import VisitRecordCreate, VisitRecordResponse
 from schemas.vital import VitalObservationResponse
-from services.record_service import create_record, get_records, get_record, get_records_for_guardian
+from services.record_service import (
+    create_record, get_records, get_record, get_records_for_guardian, get_records_for_caregiver,
+)
 from services.vital_service import get_vitals_for_record
 from services.schedule_service import get_schedule
 from routers.users import get_current_user, require_caregiver_or_admin, check_senior_access
@@ -20,7 +22,8 @@ def list_records(
     db: Session = Depends(get_db),
 ):
     if current_user.role == UserRole.caregiver:
-        return get_records(db, caregiver_id=current_user.id, senior_id=senior_id)
+        # B2: 담당 어르신의 기록 전체 (다른 요양사가 쓴 기록 포함)
+        return get_records_for_caregiver(current_user.id, db, senior_id=senior_id)
     if current_user.role == UserRole.guardian:
         # guardian은 자신의 어르신 기록만 반환 (IDOR 방어)
         return get_records_for_guardian(current_user.id, db, senior_id=senior_id)

@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from models import VisitRecord, VitalObservation, GuardianSeniorRelation
 from schemas.record import VisitRecordCreate
+from services.access_service import caregiver_senior_ids_subquery
 
 # linkId → LOINC 코드 매핑 (FHIR QuestionnaireResponse item.linkId 기준)
 VITAL_LINK_MAPPING: dict[str, dict] = {
@@ -137,6 +138,17 @@ def get_records_for_guardian(guardian_id: int, db: Session, senior_id: int | Non
         GuardianSeniorRelation.guardian_id == guardian_id
     )
     query = db.query(VisitRecord).filter(VisitRecord.senior_id.in_(allowed_seniors))
+    if senior_id is not None:
+        query = query.filter(VisitRecord.senior_id == senior_id)
+    return query.order_by(VisitRecord.recorded_at.desc()).all()
+
+
+def get_records_for_caregiver(caregiver_id: int, db: Session, senior_id: int | None = None) -> list[VisitRecord]:
+    # B2: 요양사는 담당 어르신(일정 기반)의 기록 전체를 본다 — 작성자 무관
+    # 상세 GET /records/{id}의 check_senior_access와 같은 기준 (목록·상세 일치)
+    query = db.query(VisitRecord).filter(
+        VisitRecord.senior_id.in_(caregiver_senior_ids_subquery(caregiver_id, db))
+    )
     if senior_id is not None:
         query = query.filter(VisitRecord.senior_id == senior_id)
     return query.order_by(VisitRecord.recorded_at.desc()).all()
