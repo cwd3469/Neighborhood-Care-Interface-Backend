@@ -29,6 +29,7 @@ class ScheduleResponse(BaseModel):
     id: int
     senior_id: int
     caregiver_id: int
+    caregiver_name: Optional[str] = None
     scheduled_date: date
     start_time: time
     end_time: time

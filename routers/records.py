@@ -1,11 +1,12 @@
 from typing import Optional
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from schemas.record import VisitRecordCreate, VisitRecordResponse
 from schemas.vital import VitalObservationResponse
 from services.record_service import create_record, get_records, get_record, get_records_for_guardian
 from services.vital_service import get_vitals_for_record
+from services.schedule_service import get_schedule
 from routers.users import get_current_user, require_caregiver_or_admin, check_senior_access
 from models import User, UserRole
 
@@ -56,5 +57,16 @@ def create(
     current_user: User = Depends(require_caregiver_or_admin),
     db: Session = Depends(get_db),
 ):
+    # ① 담당 어르신 검사 — 요청 body의 senior_id 기준 (담당 아니면 403)
+    check_senior_access(data.senior_id, current_user, db)
+
+    # ②③ 일정을 같이 보낸 경우에만 일정과의 정합성 검사
+    if data.schedule_id is not None:
+        schedule = get_schedule(data.schedule_id, db)          # 없으면 404
+        if schedule.senior_id != data.senior_id:
+            raise HTTPException(status_code=400, detail="일정의 어르신과 기록의 어르신이 다릅니다")
+        if current_user.role == UserRole.caregiver and schedule.caregiver_id != current_user.id:
+            raise HTTPException(status_code=403, detail="본인 일정에만 기록할 수 있습니다")
+
     return create_record(data, caregiver_id=current_user.id, db=db)
 

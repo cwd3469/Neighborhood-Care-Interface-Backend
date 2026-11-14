@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
-from models import Senior, GuardianSeniorRelation, SeniorAiSummary
+from models import Senior, GuardianSeniorRelation
 from schemas.senior import SeniorCreate, SeniorUpdate, GuardianRelationCreate
 from services.access_service import caregiver_senior_ids_subquery
 

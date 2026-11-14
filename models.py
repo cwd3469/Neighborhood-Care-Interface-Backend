@@ -5,7 +5,7 @@ from sqlalchemy import (
     String, Float, Text, DateTime,
     Date, Time, Boolean, ForeignKey, Enum, JSON, UniqueConstraint
 )
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database import Base
 
 
@@ -74,6 +74,13 @@ class VisitSchedule(Base):
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_by: Mapped[int] = mapped_column(ForeignKey("users.id"))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    # 응답용 — 요양사 이름 (FK가 2개라 foreign_keys 명시). DB 컬럼 추가 없음
+    caregiver: Mapped["User"] = relationship(foreign_keys=[caregiver_id], lazy="joined")
+
+    @property
+    def caregiver_name(self) -> str | None:
+        return self.caregiver.full_name or self.caregiver.username if self.caregiver else None
 
 
 class VisitRecord(Base):
