@@ -36,3 +36,10 @@ app.include_router(schedules.router)
 app.include_router(records.router)
 app.include_router(vitals.router)
 app.include_router(ai.router)
+
+
+# Render 헬스체크용 — DB를 조회하지 않는다.
+# (DB를 건드리면 몇 초마다 오는 헬스체크가 Neon을 계속 깨워 무료 컴퓨트 시간을 소모함)
+@app.get("/health", include_in_schema=False)
+def health():
+    return {"status": "ok"}
