@@ -5,3 +5,7 @@ __pycache__/
 .env.production
 .env.*
 !.env.example
+
+# OS·도구 캐시
+.DS_Store
+.pytest_cache/
