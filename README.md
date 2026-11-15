@@ -46,14 +46,82 @@
 
 ## 아키텍처
 
-```
-[Next.js / Vercel] ──HTTPS──▶ [FastAPI / Render (Docker)] ──▶ [Neon PostgreSQL]
-                                        │
-                                        └──▶ [Anthropic Claude API] (AI 요약)
+### 시스템 구성
+
+```mermaid
+flowchart LR
+    U["사용자 브라우저<br/>(관리자·요양사·보호자)"]
+
+    subgraph V["Vercel — Next.js 16 (web)"]
+        P["proxy.ts<br/>토큰 만료 시 silent refresh<br/>역할별 리다이렉트"]
+        SC["Server Components<br/>페이지 렌더링"]
+        RH["Route Handlers /api/*<br/>httpOnly 쿠키 → Bearer 헤더"]
+    end
+
+    subgraph R["Render — FastAPI (Docker)"]
+        RT["routers<br/>인증 · 권한 검사"]
+        SV["services<br/>비즈니스 로직"]
+    end
+
+    DB[("Neon PostgreSQL")]
+    AI["Anthropic Claude API"]
+
+    U --> P --> SC
+    U -- "fetch /api/*" --> RH
+    SC -- "Bearer JWT" --> RT
+    RH -- "Bearer JWT" --> RT
+    RT --> SV
+    SV --> DB
+    SV -- "요약 생성" --> AI
 ```
 
-> Render 무료 인스턴스는 유휴 시 잠들어 첫 요청에 수십 초가 걸릴 수 있다(콜드 스타트).
-> Neon도 유휴 시 잠들기 때문에 엔진에 `pool_pre_ping=True`를 켜 두었다.
+- 브라우저는 FastAPI를 직접 부르지 않는다. 토큰은 httpOnly 쿠키에만 두고, Next.js 서버(Server Component·Route Handler)가 쿠키를 꺼내 `Authorization` 헤더로 바꿔 전달한다 — 브라우저 JS에서 토큰을 읽을 수 없게 하기 위함.
+- 권한 검사는 전부 FastAPI `routers/`에서 한다. 프론트의 역할별 리다이렉트는 화면 이동용일 뿐 보안 경계가 아니다.
+
+### 방문 기록 저장 → AI 요약 흐름
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor C as 요양사
+    actor G as 보호자
+    participant W as Next.js Route Handler
+    participant A as FastAPI
+    participant D as Neon PostgreSQL
+    participant L as Claude API
+
+    C->>W: POST /api/records (senior_id, schedule_id, visit_notes)
+    W->>A: POST /records + Bearer
+    A->>A: 담당 어르신 검사 + 일정 정합성 검사
+    A->>D: visit_records — FHIR QuestionnaireResponse 원본 저장
+    A->>D: vital_observations — item.linkId → LOINC 매핑해 구조화 저장
+    A-->>W: 200
+    W-->>C: 저장 완료
+
+    G->>W: 기록 카드에서 AI 요약 열기
+    W->>A: GET /ai/summary/{record_id}
+    A->>A: 연결된 어르신인지 검사
+    alt 캐시 있음
+        A->>D: ai_summaries 조회
+        A-->>W: 저장된 요약
+    else 캐시 없음 (404)
+        W->>A: POST /ai/summarize/{record_id}
+        A->>D: 메모 + 활력징후 조회
+        A->>L: 프롬프트 (정상 범위 벗어난 수치 표시)
+        L-->>A: summary + anomaly_flags (JSON)
+        A->>D: ai_summaries 저장 (있으면 덮어쓰기)
+        A-->>W: 새 요약
+    end
+    W-->>G: 요약 + 이상징후 표시
+```
+
+- **이중 저장**: QuestionnaireResponse 원본은 표준 그대로 보존하고, 활력징후만 따로 꺼내 LOINC 코드로 행 단위 저장한다. 원본은 다른 시스템과 주고받을 때, 구조화된 행은 추이 그래프·이상징후 계산에 쓴다.
+- **현재 한계**: web의 기록 작성 화면은 메모만 받고 `fhir_response`를 빈 객체로 보낸다. 그래서 활력징후 추출(5번 단계)은 지금 API를 직접 호출할 때만 동작한다. 요약은 메모만으로 생성된다.
+
+### 운영 메모
+
+- Render 무료 인스턴스는 유휴 시 잠들어 첫 요청에 수십 초가 걸릴 수 있다(콜드 스타트).
+- Neon도 유휴 시 잠들기 때문에 엔진에 `pool_pre_ping=True`를 켜 두었다.
 
 ---
 
